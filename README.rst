@@ -1,4 +1,4 @@
-Namesync
+namesync
 ========
 
 Sync DNS records stored in a flat file format to your DNS provider. Cloudflare support currently provided.
@@ -6,26 +6,9 @@ Sync DNS records stored in a flat file format to your DNS provider. Cloudflare s
 Installation
 ------------
 
-Run:
-
-    $ python setup.py install
-
-Usage
------
-
 ::
 
-    usage: namesync [-h] [-d DATA_DIR] [-r] [-z ZONE] [-t] records
-
-    positional arguments:
-      records
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -d DATA_DIR, --data-dir DATA_DIR
-      -r, --remove-cache
-      -z ZONE, --zone ZONE
-      -t, --dry-run
+    $ python setup.py install
 
 Quick Guide
 -----------
@@ -57,3 +40,21 @@ Perform a dry run to see what will happen::
 If everything looks good, sync for real::
 
    $ namesync example.com
+
+Usage
+-----
+
+::
+
+    usage: namesync [-h] [-d DATA_DIR] [-r] [-z ZONE] [-t] records
+
+    positional arguments:
+      records
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -d DATA_DIR, --data-dir DATA_DIR
+      -r, --remove-cache
+      -z ZONE, --zone ZONE
+      -t, --dry-run
+
