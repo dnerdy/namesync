@@ -1,0 +1,158 @@
+{
+    "msg": null, 
+    "request": {
+        "act": "rec_load_all"
+    }, 
+    "response": {
+        "recs": {
+            "has_more": false, 
+            "count": 5, 
+            "objs": [
+                {
+                    "display_content": "10.10.10.10", 
+                    "display_name": "*", 
+                    "name": "*.example.com", 
+                    "prio": null, 
+                    "auto_ttl": 1, 
+                    "type": "A", 
+                    "props": {
+                        "proxiable": 0, 
+                        "expiring_ssl": 0, 
+                        "cloud_on": 0, 
+                        "expired_ssl": 0, 
+                        "ssl": 0, 
+                        "cf_open": 1, 
+                        "vanity_lock": 0, 
+                        "pending_ssl": 0
+                    }, 
+                    "rec_id": "00000004", 
+                    "content": "10.10.10.10", 
+                    "service_mode": "0", 
+                    "ssl_expires_on": null, 
+                    "ssl_id": null, 
+                    "ssl_status": null, 
+                    "ttl": "1", 
+                    "zone_name": "example.com", 
+                    "rec_tag": "feedface04", 
+                    "ttl_ceil": 86400
+                },
+                {
+                    "display_content": "10.10.10.10", 
+                    "display_name": "example.com", 
+                    "name": "example.com", 
+                    "prio": null, 
+                    "auto_ttl": 1, 
+                    "type": "A", 
+                    "props": {
+                        "proxiable": 1, 
+                        "expiring_ssl": 0, 
+                        "cloud_on": 0, 
+                        "expired_ssl": 0, 
+                        "ssl": 0, 
+                        "cf_open": 1, 
+                        "vanity_lock": 0, 
+                        "pending_ssl": 0
+                    }, 
+                    "rec_id": "00000000", 
+                    "content": "10.10.10.10", 
+                    "service_mode": "0", 
+                    "ssl_expires_on": null, 
+                    "ssl_id": null, 
+                    "ssl_status": null, 
+                    "ttl": "1", 
+                    "zone_name": "example.com", 
+                    "rec_tag": "feedface00", 
+                    "ttl_ceil": 86400
+                }, 
+                {
+                    "display_content": "10.10.10.11", 
+                    "display_name": "test", 
+                    "name": "test.example.com", 
+                    "prio": null, 
+                    "auto_ttl": 1, 
+                    "type": "A", 
+                    "props": {
+                        "proxiable": 1, 
+                        "expiring_ssl": 0, 
+                        "cloud_on": 0, 
+                        "expired_ssl": 0, 
+                        "ssl": 0, 
+                        "cf_open": 1, 
+                        "vanity_lock": 0, 
+                        "pending_ssl": 0
+                    }, 
+                    "rec_id": "00000001", 
+                    "content": "10.10.10.11", 
+                    "service_mode": "0", 
+                    "ssl_expires_on": null, 
+                    "ssl_id": null, 
+                    "ssl_status": null, 
+                    "ttl": "1", 
+                    "zone_name": "example.com", 
+                    "rec_tag": "feedface01", 
+                    "ttl_ceil": 86400
+                }, 
+                {
+                    "display_content": "ghs.googlehosted.com", 
+                    "display_name": "mail", 
+                    "name": "mail.example.com", 
+                    "prio": null, 
+                    "auto_ttl": 1, 
+                    "type": "CNAME", 
+                    "props": {
+                        "proxiable": 1, 
+                        "expiring_ssl": 0, 
+                        "cloud_on": 0, 
+                        "expired_ssl": 0, 
+                        "ssl": 0, 
+                        "cf_open": 1, 
+                        "vanity_lock": 0, 
+                        "pending_ssl": 0
+                    }, 
+                    "rec_id": "00000002", 
+                    "content": "ghs.googlehosted.com", 
+                    "service_mode": "0", 
+                    "ssl_expires_on": null, 
+                    "ssl_id": null, 
+                    "ssl_status": null, 
+                    "ttl": "1", 
+                    "zone_name": "example.com", 
+                    "rec_tag": "feedface02", 
+                    "ttl_ceil": 86400
+                }, 
+                {
+                    "display_content": "aspmx.l.google.com", 
+                    "display_name": "example.com", 
+                    "name": "example.com", 
+                    "prio": "0", 
+                    "auto_ttl": 1, 
+                    "type": "MX", 
+                    "props": {
+                        "proxiable": 0, 
+                        "expiring_ssl": 0, 
+                        "cloud_on": 0, 
+                        "expired_ssl": 0, 
+                        "ssl": 0, 
+                        "cf_open": 1, 
+                        "vanity_lock": 0, 
+                        "pending_ssl": 0
+                    }, 
+                    "rec_id": "00000003", 
+                    "content": "aspmx.l.google.com", 
+                    "service_mode": "0", 
+                    "ssl_expires_on": null, 
+                    "ssl_id": null, 
+                    "ssl_status": null, 
+                    "ttl": "1", 
+                    "zone_name": "example.com", 
+                    "rec_tag": "feedface03", 
+                    "mx": {
+                        "auto": null
+                    }, 
+                    "ttl_ceil": 86400
+                }
+            ]
+        }
+    }, 
+    "result": "success"
+}
