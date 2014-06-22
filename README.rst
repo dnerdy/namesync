@@ -30,11 +30,11 @@ Usage
 Quick Guide
 -----------
 
-1. Create a file with the name or your domain::
+Create a file with the name or your domain::
     
     $ touch example.com
 
-2. Enter one record per line with the following format::
+Enter one record per line with the following format::
    
    <record-type> <name> <value>
 
@@ -50,10 +50,10 @@ If the value contains spaces, quote it::
 
     TXT   .         "v=spf1 a include:amazonses.com include:_spf.google.com ~all"
     
-3. Perform a dry run to see what will happen::
+Perform a dry run to see what will happen::
 
    $ namesync --dry-run example.com
 
-4. If everything looks good, sync for real::
+If everything looks good, sync for real::
 
    $ namesync example.com
