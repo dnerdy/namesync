@@ -13,7 +13,7 @@ Run:
 Usage
 -----
 
-``namesync --help``::
+::
 
     usage: namesync [-h] [-d DATA_DIR] [-r] [-z ZONE] [-t] records
 
@@ -27,7 +27,7 @@ Usage
       -z ZONE, --zone ZONE
       -t, --dry-run
 
-Basic Usage
+Quick Guide
 -----------
 
 1. Create a file with the name or your domain::
