@@ -1,0 +1,6 @@
+A     .        10.10.10.10
+CNAME www      example.com
+A     test     10.10.10.12
+CNAME mail     ghs.googlehosted.com
+MX    .        aspmx.l.google.com
+

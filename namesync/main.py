@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-
 import argparse
 import functools
 import os
 import json
 import subprocess
+import sys
 
 from namesync.records import (
     response_to_records,
@@ -26,15 +25,15 @@ from namesync.config import (
 
 DEFAULT_DATA_LOCATION = os.path.expanduser('~/.namesync')
 
-def main():
-    parser = argparse.ArgumentParser()
+def main(argv=sys.argv, outfile=sys.stdout):
+    parser = argparse.ArgumentParser(prog='namesync')
     parser.add_argument('-d', '--data-dir', default=DEFAULT_DATA_LOCATION)
     parser.add_argument('-r', '--remove-cache', default=False, action='store_true')
     parser.add_argument('-z', '--zone')
     parser.add_argument('-t', '--dry-run', default=False, action='store_true')
     parser.add_argument('records')
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     config = environment_check(args.data_dir)
     make_api_request = functools.partial(unbound_make_api_request, email=config['email'], token=config['token'])
@@ -75,17 +74,20 @@ def main():
         return params
 
     for record in diff['add']:
-        print('ADD    {}'.format(record.format(cache_format=False)))
+        outfile.write('ADD    {}'.format(record.format(cache_format=False)))
+        outfile.write('\n')
         if not args.dry_run:
             make_api_request(**record_params('rec_new', record))
 
     for record in diff['update']:
-        print('UPDATE {}'.format(record.format(cache_format=False)))
+        outfile.write('UPDATE {}'.format(record.format(cache_format=False)))
+        outfile.write('\n')
         if not args.dry_run:
             make_api_request(**record_params('rec_edit', record, id=record.id, service_mode=0))
 
     for record in diff['remove']:
-        print('REMOVE {}'.format(record.format(cache_format=False)))
+        outfile.write('REMOVE {}'.format(record.format(cache_format=False)))
+        outfile.write('\n')
         if not args.dry_run:
             make_api_request(a='rec_delete', z=zone, id=record.id)
 

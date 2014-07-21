@@ -10,6 +10,8 @@ from namesync.records import (
     records_to_flatfile,
 )
 
+from tests.utils import fixture_path
+
 def make_record(**kwargs):
     defaults = {
         'type': 'A',
@@ -18,9 +20,6 @@ def make_record(**kwargs):
     }
     defaults.update(kwargs)
     return Record(**defaults)
-
-def fixture_path(*path_components):
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), *path_components))
 
 class RecordTestCase(unittest.TestCase):
     def test_generic_record_defaults(self):
