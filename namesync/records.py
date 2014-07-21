@@ -1,15 +1,8 @@
-#!/usr/bin/env python
-
-from cStringIO import StringIO
-import json
 import functools
-import os
 import shlex
 
-import requests
 
 class RecordParseError(Exception): pass
-class ApiError(Exception): pass
 
 TTL_DEFAULT = 'auto'
 PRIO_DEFAULT = '0'
@@ -126,32 +119,6 @@ def short_name(zone, name):
 def full_name(zone, name):
     return zone if name == '.' else '{}.{}'.format(name, zone)
 
-def response_to_records(zone, file):
-    data = json.load(file)
-    records = []
-
-    if data['response']['recs']['has_more']:
-        raise RuntimeException('Not sure what to do with "has_more" in API response')
-
-    for obj in data['response']['recs']['objs']:
-        record = Record(
-            type=obj['type'],
-            name=short_name(zone, obj['name']),
-            content=obj['content'],
-            id=obj['rec_id'],
-        )
-
-        if not obj['auto_ttl']:
-            record.ttl = obj['ttl']
-
-        if obj['prio']:
-            record.prio = obj['prio']
-
-        records.append(record)
-
-    records.sort()
-    return records
-
 def flatfile_to_records(zone, file):
     records = []
     for line in file:
@@ -224,23 +191,3 @@ def diff_records(old, new):
         'update': update,
         'remove': remove,
     }
-
-def check_api_response(response):
-    data = json.loads(response.text)
-    if data['result'] == 'error':
-        raise ApiError(response.text)
-
-def make_api_request(email, token, **kwargs):
-    params = {
-        'email': email,
-        'tkn': token,
-    }
-    params.update(kwargs)
-    response = requests.get('https://www.cloudflare.com/api_json.html', params=params)
-    check_api_response(response)
-    return response
-
-def get_records_from_api(zone, make_api_request_func):
-    r = make_api_request_func(a='rec_load_all', z=zone)
-    response = StringIO(r.text)
-    return response_to_records(zone, response)

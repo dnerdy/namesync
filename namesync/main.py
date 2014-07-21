@@ -7,19 +7,9 @@ import json
 import subprocess
 import sys
 
-from namesync.records import (
-    response_to_records,
-    records_to_flatfile,
-    flatfile_to_records,
-    diff_records,
-    make_api_request as unbound_make_api_request,
-    full_name,
-    get_records_from_api,
-)
-
-from namesync.config import (
-    environment_check,
-)
+from namesync.backends.cloudflare import CloudFlareBackend
+from namesync.config import environment_check
+from namesync.records import diff_records, flatfile_to_records
 
 DEFAULT_DATA_LOCATION = os.path.expanduser('~/.namesync')
 
@@ -33,51 +23,34 @@ def main(argv=sys.argv, outfile=sys.stdout):
     args = parser.parse_args(argv)
 
     config = environment_check(args.data_dir)
-    make_api_request = functools.partial(unbound_make_api_request, email=config['email'], token=config['token'])
 
     zone = args.zone if args.zone else os.path.basename(args.records)
+    backend = CloudFlareBackend({'token': config['token'], 'email': config['email']}, zone)
     
-    current_records = get_records_from_api(zone, make_api_request)
+    current_records = backend.records()
 
     with open(args.records) as f:
         new_records = flatfile_to_records(zone, f)
 
     diff = diff_records(current_records, new_records)
 
-    def record_params(action, record, **extra):
-        params={
-            'a': action,
-            'z': zone,
-            'type': record.type,
-            'name': full_name(zone, record.name),
-            'content': record.content,
-            'ttl': record.api_ttl,
-        }
-
-        if record.has_prio:
-            params['prio'] = record.prio
-
-        params.update(extra)
-
-        return params
-
     for record in diff['add']:
         outfile.write('ADD    {}'.format(record))
         outfile.write('\n')
         if not args.dry_run:
-            make_api_request(**record_params('rec_new', record))
+            backend.add(record)
 
     for record in diff['update']:
         outfile.write('UPDATE {}'.format(record))
         outfile.write('\n')
         if not args.dry_run:
-            make_api_request(**record_params('rec_edit', record, id=record.id, service_mode=0))
+            backend.update(record)
 
     for record in diff['remove']:
         outfile.write('REMOVE {}'.format(record))
         outfile.write('\n')
         if not args.dry_run:
-            make_api_request(a='rec_delete', z=zone, id=record.id)
+            backend.delete(record)
 
 if __name__ == '__main__':
     main()

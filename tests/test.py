@@ -4,11 +4,11 @@ import unittest
 
 from namesync.records import (
     Record,
-    response_to_records,
     flatfile_to_records,
     diff_records,
     records_to_flatfile,
 )
+from namesync.backends.cloudflare import response_to_records
 
 from tests.utils import fixture_path
 

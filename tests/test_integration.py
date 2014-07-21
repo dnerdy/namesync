@@ -19,7 +19,7 @@ class IntegrationTestCase(unittest.TestCase):
             shutil.rmtree(self.scratch_dir)
         self.addCleanup(remove_working_dir)
 
-        patcher = mock.patch('namesync.records.requests')
+        patcher = mock.patch('namesync.backends.cloudflare.requests')
         self.requests = patcher.start()
         self.addCleanup(patcher.stop)
 
