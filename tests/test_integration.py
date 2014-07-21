@@ -23,6 +23,8 @@ class IntegrationTestCase(unittest.TestCase):
         self.requests = patcher.start()
         self.addCleanup(patcher.stop)
 
+        self.mock_requests_get_content(fixture_content('example.com.json'))
+
     def namesync(self, *extra_args):
         argv = ('--data-dir', self.data_dir) + extra_args
         main(argv, self.outfile)
@@ -34,7 +36,6 @@ class IntegrationTestCase(unittest.TestCase):
         self.requests.get.return_value = response
 
     def test_nothing_should_happen_when_flatfile_and_api_are_in_sync(self):
-        self.mock_requests_get_content(fixture_content('example.com.json'))
         self.namesync(fixture_path('example.com'))
         self.outfile.seek(0)
         self.assertEqual(self.outfile.read(), '')
@@ -48,7 +49,6 @@ class IntegrationTestCase(unittest.TestCase):
         ])
 
     def test_updating_zone_should_output_changes_and_call_api(self):
-        self.mock_requests_get_content(fixture_content('example.com.json'))
         self.namesync('--zone', 'example.com', fixture_path('example.com.updated'))
         self.outfile.seek(0)
         self.assertEqual(self.outfile.read(), '''\
@@ -92,10 +92,10 @@ REMOVE A     * 10.10.10.10
                 'z': 'example.com',
                 'id': '00000004',
             }),
-            mock.call('https://www.cloudflare.com/api_json.html', params={
-                'tkn': u'cafebabe',
-                'email': u'user@example.com',
-                'a': 'rec_load_all',
-                'z': 'example.com',
-            }),
         ])
+    
+    def test_cache_directory_should_be_removed_if_it_exists(self):
+        cache_dir = os.path.join(self.data_dir, 'cache')
+        os.mkdir(cache_dir)
+        self.namesync(fixture_path('example.com'))
+        self.assertFalse(os.path.exists(cache_dir))

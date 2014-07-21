@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import sys
 
 def config_path(data_path):
@@ -8,17 +9,14 @@ def config_path(data_path):
 def cache_path(data_path):
     return os.path.join(data_path, 'cache')
 
-def zone_cache_path(data_path, zone):
-    return os.path.join(cache_path(data_path), zone)
-
 def environment_check(data_path):
     os.umask(0027)
     if not os.path.exists(config_path(data_path)):
         interactive_config(data_path)
     os.umask(0022)
 
-    if not os.path.exists(cache_path(data_path)):
-        os.mkdir(cache_path(data_path))
+    if os.path.exists(cache_path(data_path)):
+        shutil.rmtree(cache_path(data_path))
 
     with open(config_path(data_path)) as f:
         return json.load(f)

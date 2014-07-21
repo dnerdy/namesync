@@ -24,17 +24,15 @@ class Record(object):
         self.ttl = ttl
         self.id = id
 
-    def format(self, max_name_len=None, cache_format=True):
+    def format(self, max_name_len=None):
         max_type_len = 5
         max_name_len = max_name_len or len(self.name)
 
-        components = [self.id or '-'] if cache_format else []
-
-        components.extend([
+        components = [
             self.type.ljust(max_type_len),
             self.name.ljust(max_name_len),
             self.quoted_content,
-        ])
+        ]
 
         if self.output_prio:
             components.append(self.prio)
@@ -63,22 +61,19 @@ class Record(object):
         return (self.type, self.name) < (other.type, other.name)
 
     @classmethod
-    def parse(cls, string, cache_format=False):
+    def parse(cls, string):
         components = shlex.split(string, comments=True)
 
         if len(components) == 0:
             return None
 
-        if len(components) < 3 or (cache_format and len(components) < 4):
+        if len(components) < 3:
             raise RecordParseError(string)
-
-        id = components.pop(0) if cache_format else None
 
         record = cls(
             type=components[0],
             name=components[1],
             content=components[2],
-            id=id
         )
 
         if len(components) > 3:
@@ -157,21 +152,21 @@ def response_to_records(zone, file):
     records.sort()
     return records
 
-def flatfile_to_records(zone, file, cache_format=False):
+def flatfile_to_records(zone, file):
     records = []
     for line in file:
-        record = Record.parse(line, cache_format)
+        record = Record.parse(line)
         if record:
             records.append(record)
     records.sort()
     return records
 
-def records_to_flatfile(records, file, cache_format=False):
+def records_to_flatfile(records, file):
     max_type_len = 5
     max_name_len = max(len(record.name) for record in records) + 4
 
     for record in records:
-        file.write(record.format(max_name_len, cache_format))
+        file.write(record.format(max_name_len))
         file.write('\n')
 
 def make_records_map(records):
@@ -249,12 +244,3 @@ def get_records_from_api(zone, make_api_request_func):
     r = make_api_request_func(a='rec_load_all', z=zone)
     response = StringIO(r.text)
     return response_to_records(zone, response)
-
-def get_cached_records(zone, path, make_api_request_func):
-    if os.path.exists(path):
-        with open(path) as f:
-            cached_records = flatfile_to_records(zone, f, cache_format=True)
-    else:
-        cached_records = get_records_from_api(zone, make_api_request_func)
-
-    return cached_records
