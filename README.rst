@@ -13,26 +13,33 @@ Installation
 Quick Guide
 -----------
 
-Create a file with the name or your domain::
+Create a file with the name of your domain::
     
     $ touch example.com
 
 Enter one record per line with the following format::
    
-   <record-type> <name> <value>
+   <record-type> <name> <value> <ttl:optional>
+
+MX records have slightly different format that allows you to specifiy a priority::
+
+   MX <name> <value> <priority:optional> <ttl:optional>
 
 For example::
 
-    A       *       10.10.10.10
-    A       .       10.10.10.10
+    A       *       10.10.10.10   # You can even use comments
+    A       .       10.10.10.10   # . references the domain itself, example.com
     A       test    10.10.10.11
+    A       ttl     10.10.10.12 86400
     CNAME   mail    ghs.googlehosted.com
     MX      .       aspmx.l.google.com
+    MX      .       alt1.aspmx.l.google.com 20
+    MX      .       aspmx3.googlemail.com 30 86400
 
 If the value contains spaces, quote it::
 
-    TXT   .         "v=spf1 a include:amazonses.com include:_spf.google.com ~all"
-    
+    TXT     .       "v=spf1 a include:amazonses.com include:_spf.google.com ~all"
+
 Perform a dry run to see what will happen::
 
    $ namesync --dry-run example.com
