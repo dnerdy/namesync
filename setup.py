@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='namesync',
-    version='0.1',
+    version='0.2',
     packages=['namesync'],
     setup_requires=[
         'setuptools>=0.8',
