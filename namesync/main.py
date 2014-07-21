@@ -13,14 +13,14 @@ from namesync.records import diff_records, flatfile_to_records
 
 DEFAULT_DATA_LOCATION = os.path.expanduser('~/.namesync')
 
-def main(argv=sys.argv, outfile=sys.stdout):
+def main(argv=None, outfile=sys.stdout):
     parser = argparse.ArgumentParser(prog='namesync')
     parser.add_argument('-d', '--data-dir', default=DEFAULT_DATA_LOCATION)
     parser.add_argument('-z', '--zone')
     parser.add_argument('-t', '--dry-run', default=False, action='store_true')
     parser.add_argument('records')
 
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv or sys.argv[1:])
 
     config = environment_check(args.data_dir)
 
