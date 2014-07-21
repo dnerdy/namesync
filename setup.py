@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='namesync',
     version='0.2',
-    packages=['namesync'],
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    description='Sync DNS records stored in a flat file format to your DNS provider.',
+    author='Mark Sandstrom',
+    author_email='mark@deliciouslynerdy.com',
+    url='https://github.com/dnerdy/namesync',
+    download_url='https://github.com/dnerdy/namesync/archive/v0.2.tar.gz',
     setup_requires=[
         'setuptools>=0.8',
     ],
@@ -20,4 +25,14 @@ setup(
     },
     test_suite='tests',
     test_loader='unittest:TestLoader',
+    keywords=['dns', 'sync', 'syncing', 'cloudflare'],
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.7",
+        "Topic :: Internet :: Name Service (DNS)",
+    ],
 )
