@@ -3,15 +3,17 @@
 
 from setuptools import setup, find_packages
 
+VERSION='0.3'
+
 setup(
     name='namesync',
-    version='0.2',
+    version=VERSION,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     description='Sync DNS records stored in a flat file format to your DNS provider.',
     author='Mark Sandstrom',
     author_email='mark@deliciouslynerdy.com',
     url='https://github.com/dnerdy/namesync',
-    download_url='https://github.com/dnerdy/namesync/archive/v0.2.tar.gz',
+    download_url='https://github.com/dnerdy/namesync/archive/v{}.tar.gz'.format(VERSION),
     setup_requires=[
         'setuptools>=0.8',
     ],
