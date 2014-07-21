@@ -8,7 +8,7 @@ Installation
 
 ::
 
-    $ python setup.py install
+    $ pip install namesync
 
 Quick Guide
 -----------
