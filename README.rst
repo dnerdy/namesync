@@ -54,7 +54,6 @@ Usage
     optional arguments:
       -h, --help            show this help message and exit
       -d DATA_DIR, --data-dir DATA_DIR
-      -r, --remove-cache
       -z ZONE, --zone ZONE
       -t, --dry-run
 
