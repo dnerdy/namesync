@@ -67,7 +67,7 @@ Usage
 
 ::
 
-    usage: namesync [-h] [-d DATA_DIR] [-r] [-z ZONE] [-t] records
+    usage: namesync [-h] [-d DATA_DIR] [-z ZONE] [-t] records
 
     positional arguments:
       records
