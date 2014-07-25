@@ -1,4 +1,3 @@
-from cStringIO import StringIO
 import json
 
 import requests
@@ -6,6 +5,7 @@ import requests
 from namesync.backends.base import Backend
 from namesync.exceptions import ApiError
 from namesync.records import Record, full_name, short_name
+from namesync.six import StringIO
 
 
 class CloudFlareBackend(Backend):

@@ -4,3 +4,5 @@ dist/
 *.swp
 *.swo
 .DS_Store
+.tox/
+*.egg/

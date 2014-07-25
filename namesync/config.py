@@ -10,10 +10,10 @@ def cache_path(data_path):
     return os.path.join(data_path, 'cache')
 
 def environment_check(data_path):
-    os.umask(0027)
+    os.umask(0o027)
     if not os.path.exists(config_path(data_path)):
         interactive_config(data_path)
-    os.umask(0022)
+    os.umask(0o022)
 
     if os.path.exists(cache_path(data_path)):
         shutil.rmtree(cache_path(data_path))

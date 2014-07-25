@@ -1,6 +1,7 @@
 import functools
 import shlex
 
+from namesync import six
 
 class RecordParseError(Exception): pass
 
@@ -151,19 +152,19 @@ def diff_records(old, new):
     old_map = make_records_map(old)
     new_map = make_records_map(new)
 
-    for key, new_content_map in new_map.iteritems():
+    for key, new_content_map in six.iteritems(new_map):
         if key not in old_map:
             add.extend(new_content_map.values())
         else:
             old_content_map = old_map[key]
             if len(new_content_map) == len(old_content_map) == 1:
-                new_record = new_content_map.values()[0]
-                old_record = old_content_map.values()[0]
+                new_record = six.next(six.itervalues(new_content_map))
+                old_record = six.next(six.itervalues(old_content_map))
                 if new_record != old_record:
                     new_record.id = old_record.id
                     update.append(new_record)
             else:
-                for content, new_record in new_content_map.iteritems():
+                for content, new_record in six.iteritems(new_content_map):
                     if content in old_content_map:
                         old_record = old_content_map[content]
                         if new_record != old_record:
@@ -172,13 +173,13 @@ def diff_records(old, new):
                     else:
                         add.append(new_record)
 
-    for key, old_content_map in old_map.iteritems():
+    for key, old_content_map in six.iteritems(old_map):
         if key not in new_map:
             remove.extend(old_content_map.values())
         else:
             new_content_map = new_map[key]
             if not (len(new_content_map) == len(old_content_map) == 1):
-                for content, old_record in old_content_map.iteritems():
+                for content, old_record in six.iteritems(old_content_map):
                     if content not in new_content_map:
                         remove.append(old_record)
 
