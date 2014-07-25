@@ -3,6 +3,10 @@ namesync
 
 Sync DNS records stored in a flat file format to your DNS provider. Cloudflare support currently provided.
 
+.. image:: https://secure.travis-ci.org/dnerdy/namesync.svg?branch=master
+    :alt: Build Status
+    :target: http://travis-ci.org/dnerdy/namesync
+
 Installation
 ------------
 
