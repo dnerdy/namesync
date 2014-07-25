@@ -1,18 +1,25 @@
-namesync
-========
+namesync |build-status| |python-versions|
+==============================================
 
 Sync DNS records stored in a flat file format to your DNS provider. Cloudflare support currently provided.
 
-.. image:: https://secure.travis-ci.org/dnerdy/namesync.svg?branch=master
+.. |build-status| image:: https://secure.travis-ci.org/dnerdy/namesync.svg?branch=master
     :alt: Build Status
     :target: http://travis-ci.org/dnerdy/namesync
 
-Installation
-------------
+.. |python-versions| image:: https://img.shields.io/badge/python-2.7_3.4-blue.svg
+    :alt: Python Versions
+
+Installation |pypi-version|
+---------------------------
 
 ::
 
     $ pip install namesync
+
+.. |pypi-version| image:: https://img.shields.io/pypi/v/namesync.svg
+    :alt: PyPI Version
+    :target: http://pypi.python.org/pypi/namesync
 
 Quick Guide
 -----------
