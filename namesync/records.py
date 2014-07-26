@@ -1,7 +1,7 @@
 import functools
 import shlex
 
-from namesync import six
+from namesync.packages import six
 
 class RecordParseError(Exception): pass
 

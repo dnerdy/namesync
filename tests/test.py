@@ -8,7 +8,7 @@ from namesync.records import (
     records_to_flatfile,
 )
 from namesync.backends.cloudflare import response_to_records
-from namesync.six import StringIO
+from namesync.packages.six import StringIO
 
 from tests.utils import fixture_path
 

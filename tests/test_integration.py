@@ -6,7 +6,7 @@ from tests.compat import unittest, mock
 from tests.utils import fixture_path, fixture_content
 
 from namesync.main import main
-from namesync.six import StringIO
+from namesync.packages.six import StringIO
 
 class IntegrationTestCase(unittest.TestCase):
     def setUp(self):
