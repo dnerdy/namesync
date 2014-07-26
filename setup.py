@@ -25,7 +25,7 @@ setup(
             'namesync = namesync.main:main',
         ],
     },
-    test_suite='tests',
+    test_suite='nose.collector',
     test_loader='unittest:TestLoader',
     keywords=['dns', 'sync', 'syncing', 'cloudflare'],
     classifiers=[
