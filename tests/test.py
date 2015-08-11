@@ -125,7 +125,7 @@ class FormatTestCase(unittest.TestCase):
         with open(fixture_path('example.com')) as f:
             flatfile = f.read()
             f.seek(0)
-            flatfile_records = flatfile_to_records(zone, f)
+            flatfile_records = flatfile_to_records(f)
 
         self.assertEqual(len(response_records), 5)
         self.assertEqual(len(flatfile_records), 5)

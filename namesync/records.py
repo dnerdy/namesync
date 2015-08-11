@@ -120,7 +120,7 @@ def short_name(zone, name):
 def full_name(zone, name):
     return zone if name == '.' else '{}.{}'.format(name, zone)
 
-def flatfile_to_records(zone, file):
+def flatfile_to_records(file):
     records = []
     for line in file:
         record = Record.parse(line)

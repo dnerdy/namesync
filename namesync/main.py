@@ -30,7 +30,7 @@ def main(argv=None, outfile=sys.stdout):
     current_records = backend.records()
 
     with open(args.records) as f:
-        new_records = flatfile_to_records(zone, f)
+        new_records = flatfile_to_records(f)
 
     diff = diff_records(current_records, new_records)
 
