@@ -35,10 +35,18 @@ class IntegrationTestCase(unittest.TestCase):
         type(response).text = text
         self.requests.get.return_value = response
 
+    def make_mock_input(self, response):
+        def input(prompt):
+            self.outfile.write(prompt)
+            self.outfile.write(response)
+            self.outfile.write('\n')
+            return response
+        return input
+
     def test_nothing_should_happen_when_flatfile_and_api_are_in_sync(self):
         self.namesync(fixture_path('example.com'))
         self.outfile.seek(0)
-        self.assertEqual(self.outfile.read(), '')
+        self.assertEqual(self.outfile.read(), 'All records up to date.\n')
         self.assertTrue(self.requests.get.mock_calls == [
             mock.call('https://www.cloudflare.com/api_json.html', params={
                 'tkn': u'cafebabe',
@@ -49,7 +57,7 @@ class IntegrationTestCase(unittest.TestCase):
         ])
 
     def test_updating_zone_should_output_changes_and_call_api(self):
-        self.namesync('--zone', 'example.com', fixture_path('example.com.updated'))
+        self.namesync('--zone', 'example.com', '--yes', fixture_path('example.com.updated'))
         self.outfile.seek(0)
         self.assertEqual(self.outfile.read(), '''\
 ADD    CNAME www example.com
@@ -93,7 +101,48 @@ REMOVE A     * 10.10.10.10
                 'id': '00000004',
             }),
         ])
-    
+
+    @mock.patch('namesync.packages.six.moves.input')
+    def test_updating_zone_is_interactive(self, mock_input):
+        mock_input.side_effect = self.make_mock_input('y')
+
+        self.namesync('--zone', 'example.com', fixture_path('example.com.updated'))
+        self.outfile.seek(0)
+        self.assertEqual(self.outfile.read(), '''\
+The following changes will be made:
+ADD    CNAME www example.com
+UPDATE A     test 10.10.10.12
+REMOVE A     * 10.10.10.10
+Do you want to continue? [y/N] y
+ADD    CNAME www example.com
+UPDATE A     test 10.10.10.12
+REMOVE A     * 10.10.10.10
+''')
+
+        # The same API calls as test_updating_zone_should_output_changes_and_call_api()
+        self.assertEqual(len(self.requests.get.mock_calls), 4)
+
+    @mock.patch('namesync.packages.six.moves.input')
+    def test_updating_zone_can_be_aborted(self, mock_input):
+        mock_input.side_effect = self.make_mock_input('n')
+
+        with self.assertRaises(SystemExit) as cm:
+            self.namesync('--zone', 'example.com', fixture_path('example.com.updated'))
+
+        self.outfile.seek(0)
+        self.assertEqual(self.outfile.read(), '''\
+The following changes will be made:
+ADD    CNAME www example.com
+UPDATE A     test 10.10.10.12
+REMOVE A     * 10.10.10.10
+Do you want to continue? [y/N] n
+Abort.
+''')
+
+        # There are no API calls other than the initial call to retrieve the records
+        self.assertEqual(len(self.requests.get.mock_calls), 1)
+        self.assertEqual(cm.exception.code, 1)
+
     def test_cache_directory_should_be_removed_if_it_exists(self):
         cache_dir = os.path.join(self.data_dir, 'cache')
         os.mkdir(cache_dir)
