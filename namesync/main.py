@@ -31,12 +31,26 @@ def prompt_user_to_commit():
 
 def main(argv=None, outfile=sys.stdout):
     parser = argparse.ArgumentParser(prog='namesync')
-    parser.add_argument('-d', '--data-dir', default=DEFAULT_DATA_LOCATION)
-    parser.add_argument('-z', '--zone')
-    parser.add_argument('-t', '--dry-run', default=False, action='store_true')
-    parser.add_argument('-y', '--yes', default=False, action='store_true')
-    parser.add_argument('-g', '--get', default=False, action='store_true')
-    parser.add_argument('records')
+    parser.add_argument('-g', '--get', default=False, action='store_true',
+                        help='save existing DNS records to RECORDS')
+    parser.add_argument('-z', '--zone',
+                        help='specify the zone instead of using the RECORDS filename')
+    parser.add_argument('-y', '--yes', default=False, action='store_true',
+                        help='sync records without prompting before making changes')
+    parser.add_argument('-d', '--data-dir', default=DEFAULT_DATA_LOCATION,
+                        help=(
+                            'the directory where namesync.conf and other cache data is '
+                            'stored. [default: ~/.namesync]'
+                        ))
+    parser.add_argument('-t', '--dry-run', default=False, action='store_true',
+                        help='print actions and exit without making any changes')
+    parser.add_argument('records', metavar='RECORDS',
+                        help=(
+                            'file containing DNS records, one per line. '
+                            'The zone is derived from the basename of this file. '
+                            'For example, if "dns/example.com" is used then the zone is '
+                            'assumed to be "example.com" unless the --zone option is used'
+                        ))
 
     args = parser.parse_args(argv or sys.argv[1:])
 
