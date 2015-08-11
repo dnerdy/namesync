@@ -53,4 +53,4 @@ def main(argv=None, outfile=sys.stdout):
             backend.delete(record)
 
 if __name__ == '__main__':
-    main()
+    main()  # pragma: no cover

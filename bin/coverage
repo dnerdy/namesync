@@ -1,0 +1,6 @@
+#!/bin/bash -eu
+
+MYPATH=$(dirname $0)
+cd "$MYPATH/.."
+nosetests --with-coverage --cover-html --cover-package=namesync
+which open >/dev/null && open cover/index.html

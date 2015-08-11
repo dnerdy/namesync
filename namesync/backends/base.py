@@ -4,14 +4,14 @@ class Backend(object):
         self.zone = zone
 
     def records(self):
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     def add(self, record):
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     def update(self, record):
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     def delete(self, record):
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
