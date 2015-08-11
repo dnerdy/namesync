@@ -1,4 +1,5 @@
-requests
-mock
-nose
-coverage
+requests==2.2.1
+mock==1.3.0
+nose==1.3.7
+coverage==3.7.1
+tox==2.1.1
