@@ -61,9 +61,9 @@ class IntegrationTestCase(unittest.TestCase):
         self.namesync('--zone', 'example.com', '--yes', fixture_path('example.com.updated'))
         self.outfile.seek(0)
         self.assertEqual(self.outfile.read(), '''\
-ADD    CNAME www example.com
+ADD    CNAME www  example.com
 UPDATE A     test 10.10.10.12
-REMOVE A     * 10.10.10.10
+REMOVE A     *    10.10.10.10
 ''')
         self.assertTrue(self.requests.get.mock_calls == [
             mock.call('https://www.cloudflare.com/api_json.html', params={
@@ -111,13 +111,13 @@ REMOVE A     * 10.10.10.10
         self.outfile.seek(0)
         self.assertEqual(self.outfile.read(), '''\
 The following changes will be made:
-ADD    CNAME www example.com
+ADD    CNAME www  example.com
 UPDATE A     test 10.10.10.12
-REMOVE A     * 10.10.10.10
+REMOVE A     *    10.10.10.10
 Do you want to continue? [y/N] y
-ADD    CNAME www example.com
+ADD    CNAME www  example.com
 UPDATE A     test 10.10.10.12
-REMOVE A     * 10.10.10.10
+REMOVE A     *    10.10.10.10
 ''')
 
         # The same API calls as test_updating_zone_should_output_changes_and_call_api()
@@ -133,9 +133,9 @@ REMOVE A     * 10.10.10.10
         self.outfile.seek(0)
         self.assertEqual(self.outfile.read(), '''\
 The following changes will be made:
-ADD    CNAME www example.com
+ADD    CNAME www  example.com
 UPDATE A     test 10.10.10.12
-REMOVE A     * 10.10.10.10
+REMOVE A     *    10.10.10.10
 Do you want to continue? [y/N] n
 Abort.
 ''')

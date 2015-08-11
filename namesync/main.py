@@ -14,8 +14,8 @@ from namesync.packages import six
 
 DEFAULT_DATA_LOCATION = os.path.expanduser('~/.namesync')
 
-def action_description(label, record):
-    return '{:7}{}'.format(label, record)
+def action_description(label, record, max_name_length):
+    return '{:6} {}'.format(label, record.format(max_name_length))
 
 class Action(object):
     def __init__(self, description, closure):
@@ -82,21 +82,28 @@ def main(argv=None, outfile=sys.stdout):
     diff = diff_records(current_records, new_records)
     actions = []
 
+    records = diff['add'] + diff['update'] + diff['remove']
+
+    try:
+        max_name_length = max(len(record.name) for record in records)
+    except ValueError:
+        max_name_length = 0
+
     for record in diff['add']:
         actions.append(Action(
-            description=action_description('ADD', record),
+            description=action_description('ADD', record, max_name_length),
             closure=functools.partial(backend.add, record),
         ))
 
     for record in diff['update']:
         actions.append(Action(
-            description=action_description('UPDATE', record),
+            description=action_description('UPDATE', record, max_name_length),
             closure=functools.partial(backend.update, record),
         ))
 
     for record in diff['remove']:
         actions.append(Action(
-            description=action_description('REMOVE', record),
+            description=action_description('REMOVE', record, max_name_length),
             closure=functools.partial(backend.delete, record),
         ))
 
