@@ -1,3 +1,4 @@
+import filecmp
 import os
 import shutil
 import tempfile
@@ -142,6 +143,33 @@ Abort.
         # There are no API calls other than the initial call to retrieve the records
         self.assertEqual(len(self.requests.get.mock_calls), 1)
         self.assertEqual(cm.exception.code, 1)
+
+    def test_get_does_not_overwrite_an_existing_file(self):
+        path = os.path.join(self.scratch_dir, 'example.com')
+        shutil.copy(fixture_path('example.com.updated'), path)
+
+        with self.assertRaises(SystemExit) as cm:
+            self.namesync('--get', path)
+
+        self.assertEqual(cm.exception.code, 1)
+        self.assertTrue(filecmp.cmp(path, fixture_path('example.com.updated')))
+
+        # Only one API call made to retrieve the records
+        self.assertEqual(len(self.requests.get.mock_calls), 1)
+
+    def test_get_writes_existing_records(self):
+        path = os.path.join(self.scratch_dir, 'example.com')
+
+        with self.assertRaises(SystemExit) as cm:
+            self.namesync('--get', path)
+
+        self.assertEqual(cm.exception.code, 0)
+
+        self.assertTrue(filecmp.cmp(path, fixture_path('example.com')))
+
+        # Only one API call made to retrieve the records
+        self.assertEqual(len(self.requests.get.mock_calls), 1)
+
 
     def test_cache_directory_should_be_removed_if_it_exists(self):
         cache_dir = os.path.join(self.data_dir, 'cache')

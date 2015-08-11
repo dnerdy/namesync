@@ -9,7 +9,7 @@ import sys
 
 from namesync.backends.cloudflare import CloudFlareBackend
 from namesync.config import environment_check
-from namesync.records import diff_records, flatfile_to_records
+from namesync.records import diff_records, flatfile_to_records, records_to_flatfile
 from namesync.packages import six
 
 DEFAULT_DATA_LOCATION = os.path.expanduser('~/.namesync')
@@ -35,6 +35,7 @@ def main(argv=None, outfile=sys.stdout):
     parser.add_argument('-z', '--zone')
     parser.add_argument('-t', '--dry-run', default=False, action='store_true')
     parser.add_argument('-y', '--yes', default=False, action='store_true')
+    parser.add_argument('-g', '--get', default=False, action='store_true')
     parser.add_argument('records')
 
     args = parser.parse_args(argv or sys.argv[1:])
@@ -46,6 +47,20 @@ def main(argv=None, outfile=sys.stdout):
     auto_commit = args.yes
 
     current_records = backend.records()
+
+    def println(message):
+        outfile.write(message)
+        outfile.write('\n')
+
+    if args.get:
+        if os.path.exists(args.records):
+            println('The file "{}" already exists. Refusing to overwrite!'.format(args.records))
+            sys.exit(1)
+
+        with open(args.records, 'w') as f:
+            records_to_flatfile(current_records, f)
+
+        sys.exit(0)
 
     with open(args.records) as f:
         new_records = flatfile_to_records(f)
@@ -70,10 +85,6 @@ def main(argv=None, outfile=sys.stdout):
             description=action_description('REMOVE', record),
             closure=functools.partial(backend.delete, record),
         ))
-
-    def println(message):
-        outfile.write(message)
-        outfile.write('\n')
 
     if not len(actions):
         println('All records up to date.')
