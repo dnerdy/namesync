@@ -1,3 +1,15 @@
+.. _v0.4:
+
+0.4 (2015-08-11)
+------------------
+
+*New:*
+
+  - Improve ``--help`` output and update README
+  - Add ``--get`` option for exporting initial record set
+  - Prompt before making changes (unless the ``--yes`` option is used)
+  - Add python 3.4 support
+
 .. _v0.3:
 
 0.3 (2014-07-20)
