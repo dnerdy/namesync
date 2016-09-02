@@ -7,7 +7,6 @@ from namesync.records import (
     diff_records,
     records_to_flatfile,
 )
-from namesync.backends.cloudflare import response_to_records
 from namesync.packages.six import StringIO
 
 from tests.utils import fixture_path
@@ -114,28 +113,6 @@ class RecordEqualityTestCase(unittest.TestCase):
         reference_record = make_record(prio='0')
         record = make_record(prio='1')
         self.assertNotEqual(record, reference_record)
-
-class FormatTestCase(unittest.TestCase):
-    def test(self):
-        zone = 'example.com'
-
-        with open(fixture_path('example.com.json')) as f:
-            response_records = response_to_records(zone, f)
-
-        with open(fixture_path('example.com')) as f:
-            flatfile = f.read()
-            f.seek(0)
-            flatfile_records = flatfile_to_records(f)
-
-        self.assertEqual(len(response_records), 5)
-        self.assertEqual(len(flatfile_records), 5)
-        self.assertEqual(response_records, flatfile_records)
-
-        new_flatfile_file = StringIO()
-        records_to_flatfile(flatfile_records, new_flatfile_file)
-        new_flatfile_file.seek(0)
-        new_flatfile = new_flatfile_file.read()
-        self.assertEqual(new_flatfile, flatfile)
 
 class DiffTestCase(unittest.TestCase):
     def test(self):

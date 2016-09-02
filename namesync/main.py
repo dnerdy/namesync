@@ -7,7 +7,7 @@ import json
 import subprocess
 import sys
 
-from namesync.backends.cloudflare import CloudFlareBackend
+from namesync.backends import get_backend
 from namesync.config import environment_check
 from namesync.records import diff_records, flatfile_to_records, records_to_flatfile
 from namesync.packages import six
@@ -37,11 +37,18 @@ def main(argv=None, outfile=sys.stdout):
                         help='specify the zone instead of using the RECORDS filename')
     parser.add_argument('-y', '--yes', default=False, action='store_true',
                         help='sync records without prompting before making changes')
+    parser.add_argument('-p', '--provider', default='cloudflare')
+
+    # TODO: use a single file and change the option to "-c" and "--conf"
+
     parser.add_argument('-d', '--data-dir', default=DEFAULT_DATA_LOCATION,
                         help=(
                             'the directory where namesync.conf and other cache data is '
                             'stored. [default: ~/.namesync]'
                         ))
+
+    # TODO: remove this option
+
     parser.add_argument('-t', '--dry-run', default=False, action='store_true',
                         help='print actions and exit without making any changes')
     parser.add_argument('records', metavar='RECORDS',
@@ -57,7 +64,9 @@ def main(argv=None, outfile=sys.stdout):
     config = environment_check(args.data_dir)
 
     zone = args.zone if args.zone else os.path.basename(args.records)
-    backend = CloudFlareBackend({'token': config['token'], 'email': config['email']}, zone)
+    backend_class = get_backend(args.provider)
+    backend_config = config['providers'].get(args.provider, {})
+    backend = backend_class(backend_config, zone)
     auto_commit = args.yes
 
     current_records = backend.records()

@@ -9,6 +9,10 @@ def config_path(data_path):
 def cache_path(data_path):
     return os.path.join(data_path, 'cache')
 
+def write_config(config, file):
+    json.dump(config, file, indent=4)
+    file.write('\n')
+
 def environment_check(data_path):
     os.umask(0o027)
     if not os.path.exists(config_path(data_path)):
@@ -18,8 +22,16 @@ def environment_check(data_path):
     if os.path.exists(cache_path(data_path)):
         shutil.rmtree(cache_path(data_path))
 
-    with open(config_path(data_path)) as f:
-        return json.load(f)
+    with open(config_path(data_path), 'r+') as f:
+        config = json.load(f)
+
+        # v1 -> v2 config migration
+        if 'providers' not in config:
+            config = {'providers': {'cloudflare': config}}
+            f.seek(0)
+            write_config(config, f)
+
+    return config
 
 def get_answer(prompt, allowed=None, lowercase=False, default=None):
     answer = None
@@ -44,6 +56,6 @@ def interactive_config(data_path):
 
     if not os.path.exists(data_path):
         os.mkdir(data_path)
-    
+
     with open(config_path(data_path), 'wb') as f:
-        json.dump({'email': email, 'token': token}, f)
+        write_config({'providers': {'cloudflare': {'email': email, 'token': token}}}, f)

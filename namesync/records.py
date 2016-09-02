@@ -10,13 +10,13 @@ PRIO_DEFAULT = '0'
 
 @functools.total_ordering
 class Record(object):
-    def __init__(self, type, name, content, prio='0', ttl='auto', id=None):
+    def __init__(self, type, name, content, prio='0', ttl='auto', data=None):
         self.type = type
         self.name = name
         self.content = content
-        self.prio = prio
-        self.ttl = ttl
-        self.id = id
+        self.prio = str(prio)
+        self.ttl = str(ttl)
+        self.data = data
 
     def format(self, max_name_len=None):
         max_type_len = 5
@@ -161,14 +161,14 @@ def diff_records(old, new):
                 new_record = six.next(six.itervalues(new_content_map))
                 old_record = six.next(six.itervalues(old_content_map))
                 if new_record != old_record:
-                    new_record.id = old_record.id
+                    new_record.data = old_record.data
                     update.append(new_record)
             else:
                 for content, new_record in six.iteritems(new_content_map):
                     if content in old_content_map:
                         old_record = old_content_map[content]
                         if new_record != old_record:
-                            new_record.id = old_record.id
+                            new_record.data = old_record.data
                             update.append(new_record)
                     else:
                         add.append(new_record)

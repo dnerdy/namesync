@@ -1,91 +1,195 @@
 import json
 
-import requests
-
 from namesync.backends.base import Backend
 from namesync.exceptions import ApiError
 from namesync.records import Record, full_name, short_name
+from namesync.packages import requests
 from namesync.packages.six import StringIO
 
+
+################################################################################
+
+class UnknownZone(ApiError): pass
+
+################################################################################
+
+def cloudflare_url(*components):
+    return '/'.join(('https://api.cloudflare.com/client/v4',) + components)
+
+__provider__ = 'CloudFlareBackend'
+
+class CloudFlareResponse(object):
+    def __init__(self, data):
+        self.data = data
+
+    @property
+    def result(self):
+        return self.data['result']
+
+    @property
+    def result_info(self):
+        return self.data['result_info']
+
+    @property
+    def count(self):
+        return self.result_info['count']
+
+    @property
+    def page(self):
+        return self.result_info['page']
+
+    @property
+    def total_pages(self):
+        return self.result_info['total_pages']
+
+    @property
+    def has_more(self):
+        return self.page < self.total_pages
+
+
+    # Zones ####################################################################
+
+    @property
+    def zone_id(self):
+        return self.result[0]['id']
+
+    # DNS Records ##############################################################
+
+    @property
+    def records(self):
+        return self.result
+
+def wrap_response(response):
+    response.raise_for_status()
+
+    # print response.json()
+    # print
+    # print '*' * 80
+    # print
+
+    return CloudFlareResponse(response.json())
 
 class CloudFlareBackend(Backend):
     def __init__(self, config, zone):
         super(CloudFlareBackend, self).__init__(config, zone)
         self.token = config['token']
         self.email = config['email']
+        self._zone_id = None
+
+    ############################################################################
 
     def records(self):
-        r = self.make_api_request(a='rec_load_all')
-        response = StringIO(r.text)
-        return response_to_records(self.zone, response)
+        return [self.make_standard_record(record) for record in self.get_records()]
 
     def add(self, record):
-        self.make_api_request(**self.record_params('rec_new', record))
+        data = self.make_api_record(record)
+
+        response = wrap_response(self.api_post(self.dns_records_url(), data))
 
     def update(self, record):
-        self.make_api_request(**self.record_params('rec_edit', record, id=record.id, service_mode=0))
+        record_id = record.data['id']
+        data = self.make_api_record(record)
+
+        record.data.update(data)
+
+        response = wrap_response(self.api_put(self.dns_record_url(record_id), record.data))
 
     def delete(self, record):
-        self.make_api_request(a='rec_delete', id=record.id)
+        record_id = record.data['id']
 
-    ## API
+        # print 'RECORD ID: ' + str(record_id)
 
-    def make_api_request(self, **kwargs):
-        params = {
-            'email': self.email,
-            'tkn': self.token,
-            'z': self.zone,
+        response = wrap_response(self.api_delete(self.dns_record_url(record_id)))
+
+    ############################################################################
+
+    def zones_url(self):
+        return cloudflare_url('zones')
+
+    def dns_records_url(self):
+        return cloudflare_url('zones', self.zone_id, 'dns_records')
+
+    def dns_record_url(self, record_id):
+        return cloudflare_url('zones', self.zone_id, 'dns_records', record_id)
+
+    ############################################################################
+
+    @property
+    def api_headers(self):
+        return {
+            'X-Auth-Email': self.email,
+            'X-Auth-Key': self.token,
         }
-        params.update(kwargs)
-        response = requests.get('https://www.cloudflare.com/api_json.html', params=params)
-        check_api_response(response)
-        return response
-    
-    def record_params(self, action, record, **extra):
-        params={
-            'a': action,
-            'type': record.type,
+
+    def api_get(self, url, **params):
+        return requests.get(url, params=params, headers=self.api_headers)
+
+    def api_post(self, url, json):
+        return requests.post(url, json=json, headers=self.api_headers)
+
+    def api_put(self, url, json):
+        return requests.put(url, json=json, headers=self.api_headers)
+
+    def api_delete(self, url):
+        return requests.delete(url, headers=self.api_headers)
+
+    ############################################################################
+
+    @property
+    def zone_id(self):
+        if not self._zone_id:
+            response = wrap_response(self.api_get(self.zones_url(), name=self.zone))
+
+            if response.count != 1:
+                raise UnknownZone
+
+            self._zone_id = response.zone_id
+
+        return self._zone_id
+
+    ############################################################################
+
+    def make_standard_record(self, data):
+        return Record(
+            name=short_name(self.zone, data['name']),
+            type=data['type'],
+            content=data['content'],
+
+            # TODO: update Record so that we don't have to know the defaults here
+            prio=data.get('priority', '0'),
+            ttl=data['ttl'] if data['ttl'] != 1 else 'auto',
+
+            data=data,
+        )
+
+    def make_api_record(self, record):
+        # TODO: update Record so defaults aren't hardcoded here
+
+        data = {
             'name': full_name(self.zone, record.name),
+            'type': record.type,
             'content': record.content,
-            'ttl': record.api_ttl,
+            'ttl': int(record.ttl) if record.ttl != 'auto' else 1,
         }
 
         if record.has_prio:
-            params['prio'] = record.prio
+            data['priority'] = int(record.prio)
 
-        params.update(extra)
+        return data
 
-        return params
+    def get_records_for_page(self, page=1):
+        return wrap_response(self.api_get(self.dns_records_url(), page=page, per_page=100))
 
+    def get_records(self):
+        page = 1
 
-def check_api_response(response):
-    data = json.loads(response.text)
-    if data['result'] == 'error':
-        raise ApiError(response.text)
+        while True:
+            response = self.get_records_for_page(page)
 
-def response_to_records(zone, file):
-    data = json.load(file)
-    records = []
+            for record in response.records:
+                yield record
 
-    if data['response']['recs']['has_more']:
-        raise RuntimeException('Not sure what to do with "has_more" in API response')
-
-    for obj in data['response']['recs']['objs']:
-        record = Record(
-            type=obj['type'],
-            name=short_name(zone, obj['name']),
-            content=obj['content'],
-            id=obj['rec_id'],
-        )
-
-        if not obj['auto_ttl']:
-            record.ttl = obj['ttl']
-
-        if obj['prio']:
-            record.prio = obj['prio']
-
-        records.append(record)
-
-    records.sort()
-    return records
-
+            if response.has_more:
+                page += 1
+            else:
+                break
