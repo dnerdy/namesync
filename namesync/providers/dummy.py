@@ -1,9 +1,9 @@
-from namesync.backends.base import Backend
+from namesync.providers.base import Provider
 
 
-__provider__ = 'DummyBackend'
+__provider__ = 'DummyProvider'
 
-class DummyBackend(Backend):
+class DummyProvider(Provider):
     def records(self):
         return []
 

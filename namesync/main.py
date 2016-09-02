@@ -7,9 +7,8 @@ import json
 import subprocess
 import sys
 
-# TODO: rename "backend" to "provider" throughout the system
 
-from namesync.backends import get_backend
+from namesync.providers import get_provider
 from namesync.config import environment_check
 from namesync.records import diff_records, flatfile_to_records, records_to_flatfile
 from namesync.packages import six
@@ -58,12 +57,13 @@ def main(argv=None, outfile=sys.stdout):
     config = environment_check(args.config)
 
     zone = args.zone if args.zone else os.path.basename(args.records)
-    backend_class = get_backend(args.provider)
-    backend_config = config['providers'].get(args.provider, {})
-    backend = backend_class(backend_config, zone)
     auto_commit = args.yes
 
-    current_records = backend.records()
+    provider_class = get_provider(args.provider)
+    provider_config = config['providers'].get(args.provider, {})
+    provider = provider_class(provider_config, zone)
+
+    current_records = provider.records()
 
     def println(message):
         outfile.write(message)
@@ -95,19 +95,19 @@ def main(argv=None, outfile=sys.stdout):
     for record in diff['add']:
         actions.append(Action(
             description=action_description('ADD', record, max_name_length),
-            closure=functools.partial(backend.add, record),
+            closure=functools.partial(provider.add, record),
         ))
 
     for record in diff['update']:
         actions.append(Action(
             description=action_description('UPDATE', record, max_name_length),
-            closure=functools.partial(backend.update, record),
+            closure=functools.partial(provider.update, record),
         ))
 
     for record in diff['remove']:
         actions.append(Action(
             description=action_description('REMOVE', record, max_name_length),
-            closure=functools.partial(backend.delete, record),
+            closure=functools.partial(provider.delete, record),
         ))
 
     if not len(actions):
@@ -118,9 +118,6 @@ def main(argv=None, outfile=sys.stdout):
 
             for action in actions:
                 println(action.description)
-
-        if args.dry_run:
-            sys.exit(0)
 
         commit = auto_commit or prompt_user_to_commit()
 

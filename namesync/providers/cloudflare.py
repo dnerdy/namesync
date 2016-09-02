@@ -1,6 +1,6 @@
 import json
 
-from namesync.backends.base import Backend
+from namesync.providers.base import Provider
 from namesync.exceptions import ApiError
 from namesync.records import Record, full_name, short_name
 from namesync.packages import requests
@@ -16,7 +16,7 @@ class UnknownZone(ApiError): pass
 def cloudflare_url(*components):
     return '/'.join(('https://api.cloudflare.com/client/v4',) + components)
 
-__provider__ = 'CloudFlareBackend'
+__provider__ = 'CloudFlareProvider'
 
 class CloudFlareResponse(object):
     def __init__(self, data):
@@ -69,9 +69,9 @@ def wrap_response(response):
 
     return CloudFlareResponse(response.json())
 
-class CloudFlareBackend(Backend):
+class CloudFlareProvider(Provider):
     def __init__(self, config, zone):
-        super(CloudFlareBackend, self).__init__(config, zone)
+        super(CloudFlareProvider, self).__init__(config, zone)
         self.token = config['token']
         self.email = config['email']
         self._zone_id = None

@@ -20,14 +20,14 @@ class IntegrationTestCase(unittest.TestCase):
             shutil.rmtree(self.scratch_dir)
         self.addCleanup(remove_working_dir)
 
-        patcher = mock.patch('namesync.backends.dummy.DummyBackend')
-        self.DummyBackend = patcher.start()
+        patcher = mock.patch('namesync.providers.dummy.DummyProvider')
+        self.DummyProvider = patcher.start()
         self.addCleanup(patcher.stop)
 
-        self.backend = self.DummyBackend.return_value
+        self.provider = self.DummyProvider.return_value
 
         with open(fixture_path('example.com')) as f:
-            self.backend.records.return_value = flatfile_to_records(f)
+            self.provider.records.return_value = flatfile_to_records(f)
 
     @property
     def config_path(self):
@@ -58,7 +58,7 @@ class IntegrationTests(IntegrationTestCase):
         self.namesync(fixture_path('example.com'))
         self.outfile.seek(0)
         self.assertEqual(self.outfile.read(), 'All records up to date.\n')
-        self.assertEqual(len(self.backend.records.mock_calls), 1)
+        self.assertEqual(len(self.provider.records.mock_calls), 1)
 
     def test_updating_zone_should_output_changes_and_call_api(self):
         self.namesync('--zone', 'example.com', '--yes', fixture_path('example.com.updated'))
@@ -68,10 +68,10 @@ ADD    CNAME www  example.com
 UPDATE A     test 10.10.10.12
 REMOVE A     *    10.10.10.10
 ''')
-        self.assertEqual(len(self.backend.records.mock_calls), 1)
-        self.assertEqual(len(self.backend.add.mock_calls), 1)
-        self.assertEqual(len(self.backend.update.mock_calls), 1)
-        self.assertEqual(len(self.backend.delete.mock_calls), 1)
+        self.assertEqual(len(self.provider.records.mock_calls), 1)
+        self.assertEqual(len(self.provider.add.mock_calls), 1)
+        self.assertEqual(len(self.provider.update.mock_calls), 1)
+        self.assertEqual(len(self.provider.delete.mock_calls), 1)
 
     @mock.patch('namesync.packages.six.moves.input')
     def test_updating_zone_is_interactive(self, mock_input):
@@ -91,7 +91,7 @@ REMOVE A     *    10.10.10.10
 ''')
 
         # The same API calls as test_updating_zone_should_output_changes_and_call_api()
-        self.assertEqual(len(self.backend.mock_calls), 4)
+        self.assertEqual(len(self.provider.mock_calls), 4)
 
     @mock.patch('namesync.packages.six.moves.input')
     def test_updating_zone_can_be_aborted(self, mock_input):
@@ -111,7 +111,7 @@ Abort.
 ''')
 
         # There are no API calls other than the initial call to retrieve the records
-        self.assertEqual(len(self.backend.mock_calls), 1)
+        self.assertEqual(len(self.provider.mock_calls), 1)
         self.assertEqual(cm.exception.code, 1)
 
     def test_get_does_not_overwrite_an_existing_file(self):
@@ -125,7 +125,7 @@ Abort.
         self.assertTrue(filecmp.cmp(path, fixture_path('example.com.updated')))
 
         # Only one API call made to retrieve the records
-        self.assertEqual(len(self.backend.mock_calls), 1)
+        self.assertEqual(len(self.provider.mock_calls), 1)
 
     def test_get_writes_existing_records(self):
         path = os.path.join(self.scratch_dir, 'example.com')
@@ -138,7 +138,7 @@ Abort.
         self.assertTrue(filecmp.cmp(path, fixture_path('example.com')))
 
         # Only one API call made to retrieve the records
-        self.assertEqual(len(self.backend.mock_calls), 1)
+        self.assertEqual(len(self.provider.mock_calls), 1)
 
 class ConfigMigrationTestCase(IntegrationTestCase):
     def test_config_directory_is_replaced_with_file(self):

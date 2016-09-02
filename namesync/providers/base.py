@@ -1,5 +1,5 @@
 
-class Backend(object):
+class Provider(object):
     def __init__(self, config, zone):
         self.zone = zone
 
@@ -14,4 +14,3 @@ class Backend(object):
 
     def delete(self, record):
         raise NotImplementedError()  # pragma: no cover
-
