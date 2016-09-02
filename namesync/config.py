@@ -3,6 +3,9 @@ import os
 import shutil
 import sys
 
+from namesync.input import get_answer
+
+
 def config_path(data_path):
     return os.path.join(data_path, 'namesync.conf')
 
@@ -13,7 +16,11 @@ def write_config(config, file):
     json.dump(config, file, indent=4)
     file.write('\n')
 
-def environment_check(data_path):
+def update_config(config, file):
+    file.seek(0)
+    write_config(config, file)
+
+def environment_check(data_path, provider_name, provider_class):
     if os.path.exists(config_path(data_path)):
         # Use data_path as the location for the config file; a directory
         # containing a config file is no longer needed
@@ -33,32 +40,39 @@ def environment_check(data_path):
         # v1 -> v2 config migration
         if 'providers' not in config:
             config = {'providers': {'cloudflare': config}}
-            f.seek(0)
-            write_config(config, f)
+            update_config(config, f)
+
+        if provider_class.needs_config():
+            if provider_name not in config['providers']:
+                provider_config = interactive_provider_config(provider_name, provider_class)
+                config['providers'][provider_name] = provider_config
+                update_config(config, f)
+            else:
+                provider_config = provider_class.migrate_config(config['providers'][provider_name])
+                config['providers'][provider_name] = provider_config
 
     return config
 
-def get_answer(prompt, allowed=None, lowercase=False, default=None):
-    answer = None
-    while not answer or (allowed and answer not in allowed):
-        answer = raw_input(prompt)
-        answer = answer.strip()
-        if lowercase:
-            answer = answer.lower()
-        if default:
-            answer = answer or default
-    return answer
-
 def interactive_config(data_path):
-    # TODO: each backend needs to be responsible for its own config
     create_prompt = '{} does not exist.\n\nWould you like to create a conf file now? [Yn] '.format(data_path)
     create = get_answer(create_prompt, default='y', allowed='yn', lowercase=True)
 
     if create != 'y':
         sys.exit(1)
 
-    email = get_answer('CloudFlare email: ')
-    token = get_answer('CloudFlare token: ')
-
     with open(data_path, 'wb') as f:
-        write_config({'providers': {'cloudflare': {'email': email, 'token': token}}}, f)
+        write_config({'providers': {}}, f)
+
+def interactive_provider_config(provider_name, provider_class):
+    sys.stdout.write('''\
+
+========================================
+ provider: {}
+========================================
+
+'''.format(provider_name))
+
+    provider_config = provider_class.config()
+    sys.stdout.write('\n')
+
+    return provider_config

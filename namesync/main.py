@@ -54,12 +54,13 @@ def main(argv=None, outfile=sys.stdout):
 
     args = parser.parse_args(argv or sys.argv[1:])
 
-    config = environment_check(args.config)
+    provider_class = get_provider(args.provider)
+
+    config = environment_check(args.config, args.provider, provider_class)
 
     zone = args.zone if args.zone else os.path.basename(args.records)
     auto_commit = args.yes
 
-    provider_class = get_provider(args.provider)
     provider_config = config['providers'].get(args.provider, {})
     provider = provider_class(provider_config, zone)
 

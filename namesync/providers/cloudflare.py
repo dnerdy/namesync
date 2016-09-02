@@ -1,7 +1,8 @@
 import json
 
-from namesync.providers.base import Provider
 from namesync.exceptions import ApiError
+from namesync.input import get_answer
+from namesync.providers.base import Provider
 from namesync.records import Record, full_name, short_name
 from namesync.packages import requests
 from namesync.packages.six import StringIO
@@ -100,6 +101,13 @@ class CloudFlareProvider(Provider):
         # print 'RECORD ID: ' + str(record_id)
 
         response = wrap_response(self.api_delete(self.dns_record_url(record_id)))
+
+    @staticmethod
+    def config():
+        email = get_answer('email: ')
+        token = get_answer('token: ')
+
+        return {'email': email, 'token': token}
 
     ############################################################################
 

@@ -29,6 +29,8 @@ class IntegrationTestCase(unittest.TestCase):
         with open(fixture_path('example.com')) as f:
             self.provider.records.return_value = flatfile_to_records(f)
 
+        self.DummyProvider.needs_config.return_value = {}
+
     @property
     def config_path(self):
         return os.path.join(self.scratch_dir, '.namesync')

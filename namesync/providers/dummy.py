@@ -15,3 +15,7 @@ class DummyProvider(Provider):
 
     def delete(self, record):
         pass
+
+    @staticmethod
+    def needs_config():
+        return False

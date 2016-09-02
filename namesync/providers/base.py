@@ -14,3 +14,15 @@ class Provider(object):
 
     def delete(self, record):
         raise NotImplementedError()  # pragma: no cover
+
+    @staticmethod
+    def needs_config():
+        return True
+
+    @staticmethod
+    def config():
+        return {}
+
+    @staticmethod
+    def migrate_config(config):
+        return config
