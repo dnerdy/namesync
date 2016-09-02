@@ -38,11 +38,11 @@ def main(argv=None, outfile=sys.stdout):
                         help='specify the zone instead of using the RECORDS filename')
     parser.add_argument('-y', '--yes', default=False, action='store_true',
                         help='sync records without prompting before making changes')
-    parser.add_argument('-p', '--provider', default='cloudflare')
-
+    parser.add_argument('-p', '--provider', default='cloudflare',
+                        help='use the specified provider [default: cloudflare]')
     parser.add_argument('-c', '--config', default=DEFAULT_CONFIG_LOCATION,
                         help=(
-                            'config location. [default: ~/.namesync]'
+                            'specify config location [default: ~/.namesync]'
                         ))
     parser.add_argument('records', metavar='RECORDS',
                         help=(

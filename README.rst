@@ -79,7 +79,7 @@ Usage
 
 ::
 
-    usage: namesync [-h] [-g] [-z ZONE] [-y] [-d DATA_DIR] [-t] RECORDS
+    usage: namesync [-h] [-g] [-z ZONE] [-y] [-p PROVIDER] [-c CONFIG] RECORDS
 
     positional arguments:
       RECORDS               file containing DNS records, one per line. The zone is
@@ -92,7 +92,7 @@ Usage
       -g, --get             save existing DNS records to RECORDS
       -z ZONE, --zone ZONE  specify the zone instead of using the RECORDS filename
       -y, --yes             sync records without prompting before making changes
-      -d DATA_DIR, --data-dir DATA_DIR
-                            the directory where namesync.conf and other cache data
-                            is stored. [default: ~/.namesync]
-      -t, --dry-run         print actions and exit without making any changes
+      -p PROVIDER, --provider PROVIDER
+                            use the specified provider [default: cloudflare]
+      -c CONFIG, --config CONFIG
+                            specify config location [default: ~/.namesync]
