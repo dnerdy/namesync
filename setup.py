@@ -18,7 +18,6 @@ setup(
         'setuptools>=0.8',
     ],
     install_requires=[
-        'requests==2.2.1',
     ],
     entry_points={
         'console_scripts': [
