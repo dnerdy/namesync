@@ -5,17 +5,16 @@ from namesync.packages import six
 
 class RecordParseError(Exception): pass
 
-TTL_DEFAULT = 'auto'
-PRIO_DEFAULT = '0'
+DEFAULT_PRIORITY = 10
 
 @functools.total_ordering
 class Record(object):
-    def __init__(self, type, name, content, prio='0', ttl='auto', data=None):
+    def __init__(self, type, name, content, priority=None, ttl=None, data=None):
         self.type = type
         self.name = name
         self.content = content
-        self.prio = str(prio)
-        self.ttl = str(ttl)
+        self.priority = str(priority) if priority else None
+        self.ttl = str(ttl) if ttl else None
         self.data = data
 
     def format(self, max_name_len=None):
@@ -28,8 +27,8 @@ class Record(object):
             self.quoted_content,
         ]
 
-        if self.output_prio:
-            components.append(self.prio)
+        if self.output_priority:
+            components.append(self.priority or DEFAULT_PRIORITY)
 
         if self.output_ttl:
             components.append(self.ttl)
@@ -44,7 +43,7 @@ class Record(object):
             self.type == other.type,
             self.name == other.name,
             self.content == other.content,
-            self.prio == other.prio,
+            self.priority == other.priority,
             self.ttl == other.ttl,
         ])
 
@@ -72,7 +71,7 @@ class Record(object):
 
         if len(components) > 3:
             if record.type == 'MX':
-                record.prio = components[3]
+                record.priority = components[3]
             else:
                 record.ttl = components[3]
 
@@ -85,20 +84,16 @@ class Record(object):
         return record
 
     @property
-    def has_prio(self):
+    def uses_priority(self):
         return self.type == 'MX'
 
     @property
-    def api_ttl(self):
-        return '1' if self.ttl == 'auto' else self.ttl
-
-    @property
-    def output_prio(self):
-        return self.has_prio and (self.prio != PRIO_DEFAULT or self.output_ttl)
+    def output_priority(self):
+        return self.uses_priority and (self.priority is not None or self.output_ttl)
 
     @property
     def output_ttl(self):
-        return self.ttl != TTL_DEFAULT
+        return self.ttl is not None
 
     @property
     def quoted_content(self):

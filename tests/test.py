@@ -23,16 +23,16 @@ def make_record(**kwargs):
 class RecordTestCase(unittest.TestCase):
     def test_generic_record_defaults(self):
         record = make_record()
-        self.assertEqual(record.ttl, 'auto')
-        self.assertEqual(record.prio, '0')
+        self.assertEqual(record.ttl, None)
+        self.assertEqual(record.priority, None)
 
-    def test_an_a_record_does_not_have_a_prio(self):
+    def test_an_a_record_does_not_use_priority(self):
         record = make_record(type='A')
-        self.assertFalse(record.has_prio)
+        self.assertFalse(record.uses_priority)
 
-    def test_an_mx_record_does_have_a_prio(self):
+    def test_an_mx_record_does_use_priority(self):
         record = make_record(type='MX')
-        self.assertTrue(record.has_prio)
+        self.assertTrue(record.uses_priority)
 
     def test_parse_generic_record(self):
         record = Record.parse('A . 127.0.0.1')
@@ -55,9 +55,9 @@ class RecordTestCase(unittest.TestCase):
         self.assertEqual(record.name, '.')
         self.assertEqual(record.content, '127.0.0.1')
 
-    def test_parse_mx_record_can_parse_prio(self):
+    def test_parse_mx_record_can_parse_priority(self):
         record = Record.parse('MX . 127.0.0.1 2')
-        self.assertEqual(record.prio, '2')
+        self.assertEqual(record.priority, '2')
 
     def test_parse_mx_record_can_parse_ttl(self):
         record = Record.parse('MX . 127.0.0.1 2 300')
@@ -109,9 +109,9 @@ class RecordEqualityTestCase(unittest.TestCase):
         record = make_record(ttl='300')
         self.assertNotEqual(record, reference_record)
 
-    def test_equality_on_prio(self):
-        reference_record = make_record(prio='0')
-        record = make_record(prio='1')
+    def test_equality_on_priority(self):
+        reference_record = make_record(priority='0')
+        record = make_record(priority='1')
         self.assertNotEqual(record, reference_record)
 
 class DiffTestCase(unittest.TestCase):
@@ -130,12 +130,12 @@ class DiffTestCase(unittest.TestCase):
         self.assertEqual(differences['remove'], [three])
 
     def test_can_detect_differences_in_records_with_the_same_type_and_name(self):
-        one         = make_record(type='MX', name='.', content='127.0.0.1', prio='10')
-        one_equal   = make_record(type='MX', name='.', content='127.0.0.1', prio='10')
-        two         = make_record(type='MX', name='.', content='127.0.0.2', prio='10')
-        two_update  = make_record(type='MX', name='.', content='127.0.0.2', prio='20')
-        three       = make_record(type='MX', name='.', content='127.0.0.3', prio='30')
-        four        = make_record(type='MX', name='.', content='127.0.0.4', prio='40')
+        one         = make_record(type='MX', name='.', content='127.0.0.1', priority='10')
+        one_equal   = make_record(type='MX', name='.', content='127.0.0.1', priority='10')
+        two         = make_record(type='MX', name='.', content='127.0.0.2', priority='10')
+        two_update  = make_record(type='MX', name='.', content='127.0.0.2', priority='20')
+        three       = make_record(type='MX', name='.', content='127.0.0.3', priority='30')
+        four        = make_record(type='MX', name='.', content='127.0.0.4', priority='40')
 
         differences = diff_records([one, two, three], [one_equal, two_update, four])
 

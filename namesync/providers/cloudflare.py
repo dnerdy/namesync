@@ -162,26 +162,21 @@ class CloudFlareProvider(Provider):
             name=short_name(self.zone, data['name']),
             type=data['type'],
             content=data['content'],
-
-            # TODO: update Record so that we don't have to know the defaults here
-            prio=data.get('priority', '0'),
-            ttl=data['ttl'] if data['ttl'] != 1 else 'auto',
-
+            priority=data.get('priority'),
+            ttl=data['ttl'] if data['ttl'] != 1 else None,
             data=data,
         )
 
     def make_api_record(self, record):
-        # TODO: update Record so defaults aren't hardcoded here
-
         data = {
             'name': full_name(self.zone, record.name),
             'type': record.type,
             'content': record.content,
-            'ttl': int(record.ttl) if record.ttl != 'auto' else 1,
+            'ttl': int(record.ttl) if record.ttl is not None else 1,
         }
 
-        if record.has_prio:
-            data['priority'] = int(record.prio)
+        if record.uses_priority and record.priority is not None:
+            data['priority'] = int(record.priority)
 
         return data
 
