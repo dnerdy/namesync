@@ -15,8 +15,6 @@ class IntegrationTestCase(unittest.TestCase):
         self.outfile = StringIO()
 
         self.scratch_dir = tempfile.mkdtemp()
-        self.data_dir = os.path.join(self.scratch_dir, 'namesync')
-        shutil.copytree(fixture_path('namesync'), self.data_dir)
 
         def remove_working_dir():
             shutil.rmtree(self.scratch_dir)
@@ -33,13 +31,13 @@ class IntegrationTestCase(unittest.TestCase):
 
     @property
     def config_path(self):
-        return os.path.join(self.data_dir, 'namesync.conf')
+        return os.path.join(self.scratch_dir, '.namesync')
 
-    def activate_config(self, name):
-        os.symlink(os.path.join(self.data_dir, name), self.config_path)
+    def use_config(self, name):
+        shutil.copy(fixture_path('configs', name), self.config_path)
 
     def namesync(self, *extra_args):
-        argv = ('--data-dir', self.data_dir, '--provider', 'dummy') + extra_args
+        argv = ('--config', self.config_path, '--provider', 'dummy') + extra_args
         main(argv, self.outfile)
 
     def make_mock_input(self, response):
@@ -54,7 +52,7 @@ class IntegrationTests(IntegrationTestCase):
     def setUp(self):
         super(IntegrationTests, self).setUp()
 
-        self.activate_config('namesync-v2.conf')
+        self.use_config('namesync-v2.conf')
 
     def test_nothing_should_happen_when_flatfile_and_api_are_in_sync(self):
         self.namesync(fixture_path('example.com'))
@@ -142,14 +140,15 @@ Abort.
         # Only one API call made to retrieve the records
         self.assertEqual(len(self.backend.mock_calls), 1)
 
-    def test_cache_directory_should_be_removed_if_it_exists(self):
-        cache_dir = os.path.join(self.data_dir, 'cache')
-        os.mkdir(cache_dir)
-        self.namesync(fixture_path('example.com'))
-        self.assertFalse(os.path.exists(cache_dir))
-
 class ConfigMigrationTestCase(IntegrationTestCase):
-    def test_v1_config_is_migrated(self):
-        self.activate_config('namesync-v1.conf')
+    def test_config_directory_is_replaced_with_file(self):
+        os.mkdir(self.config_path)
+        shutil.copy(fixture_path('configs', 'namesync-v2.conf'), os.path.join(self.config_path, 'namesync.conf'))
         self.namesync(fixture_path('example.com'))
-        self.assertEqual(fixture_content(self.config_path), fixture_content('namesync/namesync-v2.conf'))
+        self.assertTrue(os.path.exists(self.config_path))
+        self.assertFalse(os.path.isdir(self.config_path))
+
+    def test_v1_config_is_migrated(self):
+        self.use_config('namesync-v1.conf')
+        self.namesync(fixture_path('example.com'))
+        self.assertEqual(fixture_content(self.config_path), fixture_content('configs/namesync-v2.conf'))

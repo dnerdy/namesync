@@ -14,15 +14,20 @@ def write_config(config, file):
     file.write('\n')
 
 def environment_check(data_path):
+    if os.path.exists(config_path(data_path)):
+        # Use data_path as the location for the config file; a directory
+        # containing a config file is no longer needed
+        temp_path = data_path + '.tmp'
+        shutil.move(config_path(data_path), temp_path)
+        shutil.rmtree(data_path)
+        shutil.move(temp_path, data_path)
+
     os.umask(0o027)
-    if not os.path.exists(config_path(data_path)):
+    if not os.path.exists(data_path):
         interactive_config(data_path)
     os.umask(0o022)
 
-    if os.path.exists(cache_path(data_path)):
-        shutil.rmtree(cache_path(data_path))
-
-    with open(config_path(data_path), 'r+') as f:
+    with open(data_path, 'r+') as f:
         config = json.load(f)
 
         # v1 -> v2 config migration
@@ -46,7 +51,7 @@ def get_answer(prompt, allowed=None, lowercase=False, default=None):
 
 def interactive_config(data_path):
     # TODO: each backend needs to be responsible for its own config
-    create_prompt = '{} does not exist.\n\nWould you like to create a conf file now? [Yn] '.format(config_path(data_path))
+    create_prompt = '{} does not exist.\n\nWould you like to create a conf file now? [Yn] '.format(data_path)
     create = get_answer(create_prompt, default='y', allowed='yn', lowercase=True)
 
     if create != 'y':
@@ -55,8 +60,5 @@ def interactive_config(data_path):
     email = get_answer('CloudFlare email: ')
     token = get_answer('CloudFlare token: ')
 
-    if not os.path.exists(data_path):
-        os.mkdir(data_path)
-
-    with open(config_path(data_path), 'wb') as f:
+    with open(data_path, 'wb') as f:
         write_config({'providers': {'cloudflare': {'email': email, 'token': token}}}, f)

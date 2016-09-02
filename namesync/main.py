@@ -14,7 +14,7 @@ from namesync.config import environment_check
 from namesync.records import diff_records, flatfile_to_records, records_to_flatfile
 from namesync.packages import six
 
-DEFAULT_DATA_LOCATION = os.path.expanduser('~/.namesync')
+DEFAULT_CONFIG_LOCATION = os.path.expanduser('~/.namesync')
 
 def action_description(label, record, max_name_length):
     return '{:6} {}'.format(label, record.format(max_name_length))
@@ -41,12 +41,9 @@ def main(argv=None, outfile=sys.stdout):
                         help='sync records without prompting before making changes')
     parser.add_argument('-p', '--provider', default='cloudflare')
 
-    # TODO: use a single file and change the option to "-c" and "--conf"
-
-    parser.add_argument('-d', '--data-dir', default=DEFAULT_DATA_LOCATION,
+    parser.add_argument('-c', '--config', default=DEFAULT_CONFIG_LOCATION,
                         help=(
-                            'the directory where namesync.conf and other cache data is '
-                            'stored. [default: ~/.namesync]'
+                            'config location. [default: ~/.namesync]'
                         ))
 
     # TODO: remove this option
@@ -63,7 +60,7 @@ def main(argv=None, outfile=sys.stdout):
 
     args = parser.parse_args(argv or sys.argv[1:])
 
-    config = environment_check(args.data_dir)
+    config = environment_check(args.config)
 
     zone = args.zone if args.zone else os.path.basename(args.records)
     backend_class = get_backend(args.provider)
