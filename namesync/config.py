@@ -45,6 +45,7 @@ def get_answer(prompt, allowed=None, lowercase=False, default=None):
     return answer
 
 def interactive_config(data_path):
+    # TODO: each backend needs to be responsible for its own config
     create_prompt = '{} does not exist.\n\nWould you like to create a conf file now? [Yn] '.format(config_path(data_path))
     create = get_answer(create_prompt, default='y', allowed='yn', lowercase=True)
 

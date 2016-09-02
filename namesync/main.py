@@ -7,6 +7,8 @@ import json
 import subprocess
 import sys
 
+# TODO: rename "backend" to "provider" throughout the system
+
 from namesync.backends import get_backend
 from namesync.config import environment_check
 from namesync.records import diff_records, flatfile_to_records, records_to_flatfile
