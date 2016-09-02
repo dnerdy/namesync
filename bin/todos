@@ -1,0 +1,8 @@
+#!/bin/bash -eu -o pipefail
+
+MYDIR=$(dirname $0)
+ROOT=$MYDIR/..
+
+cd "$ROOT"
+
+grep -rn TODO: namesync | grep -v namesync/packages
