@@ -45,11 +45,6 @@ def main(argv=None, outfile=sys.stdout):
                         help=(
                             'config location. [default: ~/.namesync]'
                         ))
-
-    # TODO: remove this option
-
-    parser.add_argument('-t', '--dry-run', default=False, action='store_true',
-                        help='print actions and exit without making any changes')
     parser.add_argument('records', metavar='RECORDS',
                         help=(
                             'file containing DNS records, one per line. '
