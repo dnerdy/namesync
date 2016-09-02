@@ -1,4 +1,5 @@
 import filecmp
+import json
 import os
 import shutil
 import tempfile
@@ -153,4 +154,7 @@ class ConfigMigrationTestCase(IntegrationTestCase):
     def test_v1_config_is_migrated(self):
         self.use_config('namesync-v1.conf')
         self.namesync(fixture_path('example.com'))
-        self.assertEqual(fixture_content(self.config_path), fixture_content('configs/namesync-v2.conf'))
+        self.assertEqual(
+            json.loads(fixture_content(self.config_path)),
+            json.loads(fixture_content('configs/namesync-v2.conf'))
+        )
